@@ -28,48 +28,30 @@ package com.gmiedlar;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx2G"})
-public class MyBenchmark {
+public class ListAdditionBenchmark {
 
     @State(value = Scope.Benchmark)
     public static class MyState {
         public int listSizeForBegAddition = 100000;
         public int listSizeForEndAddition = 1000000;
-        public int timesToAccess = 10000;
-        public static final Random random = new Random();
-        public List<Integer> arrayList = new ArrayList<>();
-        public List<Integer> linkedList = new LinkedList<>();
-
-        @Setup(Level.Invocation)
-        public void doSetup() {
-            for (int i = 0; i < timesToAccess+1; i++) {
-                arrayList.add(i);
-            }
-            for (int i = 0; i < timesToAccess+1; i++) {
-                linkedList.add(i);
-            }
-        }
     }
 
     @Benchmark
-    @Fork(value = 2)
     @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
     public List<Integer> arrayListAddToTheEnd(MyState state) {
@@ -81,7 +63,6 @@ public class MyBenchmark {
     }
 
     @Benchmark
-    @Fork(value = 2)
     @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
     public List<Integer> linkedListAddToTheEnd(MyState state) {
@@ -93,7 +74,6 @@ public class MyBenchmark {
     }
 
     @Benchmark
-    @Fork(value = 2)
     @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
     public List<Integer> arrayListAddToTheBeginning(MyState state) {
@@ -105,7 +85,6 @@ public class MyBenchmark {
     }
 
     @Benchmark
-    @Fork(value = 2)
     @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
     public List<Integer> linkedListAddToTheBeginning(MyState state) {
@@ -117,69 +96,24 @@ public class MyBenchmark {
     }
 
     @Benchmark
-    @Fork(value = 2)
-    @Measurement(iterations = 5, time = 1)
+    @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
-    public int arrayListRandomAccess(MyState state) {
-        int result=0;
-        for (int i = 0; i < state.timesToAccess; i++) {
-            result = state.arrayList.get(MyState.random.nextInt( state.timesToAccess- 1));
+    public List<Integer> linkedListAddToTheMiddle(MyState state) {
+        List<Integer> linkedList = new LinkedList<>();
+        for (int i = 0; i < state.listSizeForBegAddition; i++) {
+            linkedList.add(i/2);
         }
-        return result;
+        return linkedList;
     }
 
     @Benchmark
-    @Fork(value = 2)
-    @Measurement(iterations = 5, time = 1)
+    @Measurement(iterations = 10, time = 1)
     @Warmup(iterations = 5, time = 1)
-    public int linkedListRandomAccess(MyState state) {
-        int result=0;
-        for (int i = 0; i < state.timesToAccess; i++) {
-            result = state.linkedList.get(MyState.random.nextInt( state.timesToAccess- 1));
+    public List<Integer> arrayListAddToTheMiddle(MyState state) {
+        List<Integer> arrayList = new ArrayList<>();
+        for (int i = 0; i < state.listSizeForBegAddition; i++) {
+            arrayList.add(i/2);
         }
-        return result;
-    }
-
-    @Benchmark
-    @Warmup(iterations = 3, time=1)
-    @Measurement(iterations = 5, time=1)
-    public List<Integer> arrayListRemoveFromEnd(MyState state) {
-        int size = state.arrayList.size();
-        for (int i = size-1; i >=size-state.timesToAccess; i--) {
-            state.arrayList.remove(i);
-        }
-        return state.arrayList;
-    }
-
-    @Benchmark
-    @Warmup(iterations = 3, time=1)
-    @Measurement(iterations = 5, time=1)
-    public List<Integer> linkedListRemoveFromEnd(MyState state) {
-        int size = state.linkedList.size();
-        for (int i = size-1; i >=size-state.timesToAccess; i--) {
-            state.linkedList.remove(i);
-        }
-        return state.linkedList;
-    }
-
-    @Benchmark
-    @Warmup(iterations = 3, time=1)
-    @Measurement(iterations = 5, time=1)
-    public List<Integer> arrayListRemoveFromBeginning(MyState state) {
-        for (int i = 0; i < state.timesToAccess; i++) {
-            state.arrayList.remove(0);
-        }
-        return state.arrayList;
-    }
-
-    @Benchmark
-    @Warmup(iterations = 3, time=1)
-    @Measurement(iterations = 5, time=1)
-    public List<Integer> linkedListRemoveFromBeginning(MyState state) {
-        int size = state.linkedList.size();
-        for (int i = 0; i < state.timesToAccess; i++) {
-            state.linkedList.remove(0);
-        }
-        return state.linkedList;
+        return arrayList;
     }
 }
